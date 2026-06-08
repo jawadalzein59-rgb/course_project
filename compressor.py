@@ -1,12 +1,17 @@
-class DCS:
-    def __init__(self, CR: float, P_line: float, q_ext: float = 0.0):
-        self.CR = CR          # степень сжатия
-        self.P_line = P_line  # давление магистрали [атм]
-        self.q_ext = q_ext    # сторонний газ [ст.м³/сут]
+from dataclasses import dataclass
 
-    def P_in(self) -> float:
-        # Если CR=1, станция выключена -> давление на входе = давлению в магистрали
-        if self.CR <= 1.0:
-            return self.P_line
-        # P_out = CR * P_in  =>  P_in = P_line / CR
-        return self.P_line / self.CR
+@dataclass
+class DCS:
+    CR: float = 1.5
+    CR_min: float = 1.5
+    CR_max: float = 5.0
+    P_line: float = 500.0
+    q_ext: float = 0.0
+
+    def P_in(self, CR: float = None) -> float:
+        if CR is None:
+            CR = self.CR
+        return self.P_line / CR
+
+    def q_total(self, q_wells: float) -> float:
+        return q_wells + self.q_ext
